@@ -1,0 +1,37 @@
+services:
+    database:
+        image: postgres:latest
+        restart: unless-stopped
+        environment:
+            POSTGRES_DB: app
+            POSTGRES_USER: app
+            POSTGRES_PASSWORD: ebatSecretno!
+#        ports:
+#            - '5432:5432'
+
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        restart: unless-stopped
+#        ports:
+#            - '80:80'
+        environment:
+            VIRTUAL_HOST: localhost
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.whoami.rule=Host(`app.localhost`)"
+            - "traefik.http.routers.whoami.entrypoints=web"
+
+    lb:
+        image: traefik:latest
+        command:
+            - "--api.insecure=true"
+            - "--providers.docker=true"
+            - "--providers.docker.exposedbydefault=false"
+            - "--entrypoints.web.address=:80"
+        volumes:
+            - '/var/run/docker.sock:/var/run/docker.sock:ro'
+        ports:
+            - '80:80'
+            - '8080:8080'

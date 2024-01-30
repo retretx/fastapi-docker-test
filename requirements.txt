@@ -1,0 +1,5 @@
+uuid
+uvicorn
+pydantic
+psycopg2-binary
+fastapi
